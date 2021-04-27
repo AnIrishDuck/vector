@@ -46,7 +46,9 @@ pub struct DatadogConfig {
     // Deprecated name
     #[serde(alias = "host")]
     pub endpoint: Option<String>,
+    // Deprecated, replace by the site option
     pub region: Option<super::Region>,
+    pub site: String,
     pub api_key: String,
     #[serde(default)]
     pub batch: BatchConfig,
