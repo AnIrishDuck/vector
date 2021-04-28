@@ -77,13 +77,14 @@ struct DatadogRequest<T> {
 
 impl DatadogConfig {
     fn get_endpoint(&self) -> String {
+        let version = str::replace(crate::built_info::PKG_VERSION, ".", "-");
         self.endpoint.clone().unwrap_or_else(|| {
             self.site
                 .as_ref()
-                .map(|s| format!("https://api.{}", s))
+                .map(|s| format!("https://{}-vector.agent.{}", version, s))
                 .unwrap_or_else(|| match self.region {
-                    Some(super::Region::Eu) => "https://api.datadoghq.eu".to_string(),
-                    None | Some(super::Region::Us) => "https://api.datadoghq.com".to_string(),
+                    Some(super::Region::Eu) => format!("https://{}-vector.agent.datadoghq.eu", version),
+                    None | Some(super::Region::Us) => format!("https://{}-vector.agent.datadoghq.com", version),
                 })
         })
     }
