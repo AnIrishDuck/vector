@@ -46,9 +46,9 @@ pub struct DatadogConfig {
     // Deprecated name
     #[serde(alias = "host")]
     pub endpoint: Option<String>,
-    // Deprecated, replace by the site option
+    // Deprecated, replaced by the site option
     pub region: Option<super::Region>,
-    pub site: String,
+    pub site: Option<String>,
     pub api_key: String,
     #[serde(default)]
     pub batch: BatchConfig,
@@ -76,13 +76,16 @@ struct DatadogRequest<T> {
 }
 
 impl DatadogConfig {
-    fn get_endpoint(&self) -> &str {
-        self.endpoint
-            .as_deref()
-            .unwrap_or_else(|| match self.region {
-                Some(super::Region::Eu) => "https://api.datadoghq.eu",
-                None | Some(super::Region::Us) => "https://api.datadoghq.com",
-            })
+    fn get_endpoint(&self) -> String {
+        self.endpoint.clone().unwrap_or_else(|| {
+            self.site
+                .as_ref()
+                .map(|s| format!("https://api.{}", s))
+                .unwrap_or_else(|| match self.region {
+                    Some(super::Region::Eu) => "https://api.datadoghq.eu".to_string(),
+                    None | Some(super::Region::Us) => "https://api.datadoghq.com".to_string(),
+                })
+        })
     }
 }
 
